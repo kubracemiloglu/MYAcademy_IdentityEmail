@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="tr">
+<head><partial name="_VeloraHead" /></head>
+<body class="velora velora-shell">
+<a class="v-skip" href="#mainContent">İçeriğe geç</a>
+@await Component.InvokeAsync("VeloraNavigation")
+<button class="v-backdrop" data-velora-backdrop aria-label="Menüyü kapat" type="button"></button>
+<div class="v-main">
+    <partial name="_VeloraNavbar" />
+    <main class="v-page" id="mainContent"><partial name="_VeloraFlash" />@RenderBody()</main>
+</div>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+<script src="~/js/velora.js" asp-append-version="true"></script>
+</body>
+</html>

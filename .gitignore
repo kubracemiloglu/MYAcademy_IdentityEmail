@@ -27,3 +27,21 @@ artifacts/
 .codex/
 .agents/
 node_modules/
+tmp/
+**/wwwroot/uploads/
+
+# Private diagnostics, database backups and local recordings
+docs/velora/
+*.bak
+*.zip
+*.7z
+*.log
+*.db
+*.sqlite
+*.sqlite3
+*.dmp
+*.har
+*.trx
+session.json
+*test-session.json
+MY_Akademi_12_Donem_Proje_02_Identity_Email_Case.pdf

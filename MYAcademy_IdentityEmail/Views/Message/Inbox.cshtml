@@ -3,7 +3,7 @@
 @model List<Message>
 
 @{
-    ViewData["Title"] = "Inbox";
+    ViewData["Title"] = "Gelen Kutusu";
     Layout = "~/Views/MessageLayout/Index.cshtml";
 
     var tr = new CultureInfo("tr-TR");
@@ -69,6 +69,12 @@
     };
 }
 
+@if (ViewData["Mailbox"] is MailboxViewModel mailbox)
+{
+    <partial name="_VeloraMailbox" model="mailbox" />
+}
+else
+{
 <main class="inbox-container">
 
     <div class="inbox-header">
@@ -178,5 +184,6 @@
         </div>
     </section>
 </main>
+}
 
 

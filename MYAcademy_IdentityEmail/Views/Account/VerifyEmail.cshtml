@@ -1,0 +1,5 @@
+@model VerifyEmailViewModel
+@{ Layout = "_VeloraPublicLayout"; ViewData["Title"] = "E-postanı Doğrula"; }
+<span class="v-badge">Son bir adım</span><h1>Gelen kutuna bir bak.</h1><p class="v-muted">E-postana gönderdiğimiz 6 haneli kodu gir. Kod 10 dakika geçerlidir; en fazla 5 kez deneyebilirsin.</p>
+<form method="post" asp-action="VerifyEmail"><div asp-validation-summary="All" class="v-validation" role="alert"></div><input asp-for="UserId" type="hidden" /><div class="v-field"><label asp-for="Code">Doğrulama kodu</label><input asp-for="Code" class="form-control v-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" /><span asp-validation-for="Code"></span></div><button class="v-btn" type="submit">E-postamı doğrula <i class="bi bi-arrow-right"></i></button></form>
+<div class="v-auth-links"><a asp-action="ResendVerification">Kod gelmedi mi? Yeniden gönder</a><a asp-controller="Login" asp-action="SignIn">Girişe dön</a></div>

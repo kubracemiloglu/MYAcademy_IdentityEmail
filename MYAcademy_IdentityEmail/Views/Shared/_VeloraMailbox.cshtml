@@ -1,0 +1,80 @@
+@model MailboxViewModel
+@using MYAcademy_IdentityEmail.Helpers
+@{
+    ViewData["Title"] = Model.Title;
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var explicitDetail = Context.Request.Query.ContainsKey("id") || ViewContext.RouteData.Values["id"] != null || ViewContext.RouteData.Values["action"]?.ToString() == "MessageDetail";
+    var listAction = Model.Folder == "Category" ? "Category" : Model.Folder;
+    var listUrl = Url.Action(listAction, "Message", new { id = (string?)null, categoryId = Model.CategoryId, q = Model.Search, filter = Model.Filter, sort = Model.Sort });
+    var currentEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+}
+<div class="v-mailbox @(explicitDetail ? "is-detail-open" : "")">
+    <section class="v-panel v-mail-list-panel" aria-label="Mesaj listesi">
+        <div class="v-panel-heading"><h1>@Model.Title</h1><span class="v-badge">@Model.TotalCount</span><a href="@listUrl" class="v-icon" aria-label="Mesajları yenile"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></a></div>
+        <p class="v-list-caption">Toplam @Model.TotalCount mesaj · <span data-velora-unread>@Model.UnreadCount</span> okunmamış</p>
+        <form method="get" asp-controller="Message" asp-action="@listAction" asp-route-id="" class="v-filterbar" aria-label="Mesaj filtreleri">
+            @if (Model.CategoryId != null) { <input type="hidden" name="categoryId" value="@Model.CategoryId" /> }
+            <input type="hidden" name="q" value="@Model.Search" />
+            <button class="v-pill @(Model.Filter == "all" ? "is-active" : "")" type="submit" name="filter" value="all" aria-pressed="@(Model.Filter == "all" ? "true" : "false")">Tümü</button>
+            <button class="v-pill @(Model.Filter == "unread" ? "is-active" : "")" type="submit" name="filter" value="unread" aria-pressed="@(Model.Filter == "unread" ? "true" : "false")">Okunmamış</button>
+            <button class="v-pill @(Model.Filter == "starred" ? "is-active" : "")" type="submit" name="filter" value="starred" aria-pressed="@(Model.Filter == "starred" ? "true" : "false")">Yıldızlı</button>
+            <label class="v-sr" for="mailSort">Sıralama</label><select class="v-sort" name="sort" id="mailSort" data-velora-sort><option value="newest" selected="@(Model.Sort != "oldest")">En yeni</option><option value="oldest" selected="@(Model.Sort == "oldest")">En eski</option></select>
+        </form>
+        @if (!string.IsNullOrWhiteSpace(Model.Search)) { <p class="v-muted">“@Model.Search” için @Model.Messages.Count sonuç · <a href="@Url.Action(listAction, "Message", new { id = (string?)null, categoryId = Model.CategoryId })">Temizle</a></p> }
+        <ul class="v-message-list">
+        @foreach (var message in Model.Messages)
+        {
+            var isSent = Model.Folder == "Sendbox";
+            var email = isSent ? message.ReceiverEmail : message.SenderEmail;
+            var name = VeloraDisplay.Name(Model.People.GetValueOrDefault(email), email);
+            var state = Model.States.GetValueOrDefault(message.MessageId);
+            var selected = Model.SelectedMessage?.MessageId == message.MessageId;
+            var read = message.IsRead || message.ReceiverEmail != currentEmail;
+            <li class="v-message @(selected ? "is-selected" : "") @(read ? "is-read" : "")" data-message-id="@message.MessageId">
+                <span class="v-unread-dot" aria-hidden="true"></span>
+                <a class="v-message-link" asp-controller="Message" asp-action="@listAction" asp-route-id="@message.MessageId" asp-route-categoryId="@Model.CategoryId" asp-route-q="@Model.Search" asp-route-filter="@Model.Filter" asp-route-sort="@Model.Sort" aria-current="@(selected ? "true" : null)">
+                    <span class="v-avatar">@VeloraDisplay.Initials(name)</span><span class="v-message-copy"><span class="v-message-top"><span class="v-message-name">@name</span><time datetime="@message.SentDate.ToString("O")">@VeloraDisplay.Date(message.SentDate)</time></span>
+                    <span class="v-message-subject">@message.Subject</span><span class="v-message-preview">@VeloraDisplay.Preview(message.MessageDetail)</span><span class="v-sr">@(read ? "Okundu" : "Okunmadı")</span></span>
+                </a>
+                @if (Model.Folder != "Trash") { <form method="post" asp-controller="Message" asp-action="ToggleStar"><input type="hidden" name="id" value="@message.MessageId" /><input type="hidden" name="returnUrl" value="@returnUrl" /><button class="v-row-star @(state?.IsStarred == true ? "is-starred" : "")" type="submit" aria-label="@(state?.IsStarred == true ? "Yıldızı kaldır" : "Yıldız ekle")" aria-pressed="@(state?.IsStarred == true ? "true" : "false")"><i class="bi @(state?.IsStarred == true ? "bi-star-fill" : "bi-star")" aria-hidden="true"></i></button></form> }
+            </li>
+        }
+        </ul>
+        @if (Model.Messages.Count == 0) { <div class="v-empty"><i class="bi bi-inbox" aria-hidden="true"></i><h3>@(Model.Search == null && Model.Filter == "all" ? "Burası henüz sessiz." : "Eşleşen mesaj yok.")</h3><p>@(Model.Folder == "Trash" ? "Sildiğiniz mesajlar burada görünür." : "Mesajlarınız geldiğinde burada, düzenli bir şekilde sizi bekliyor olacak.")</p><a class="v-btn" asp-controller="Message" asp-action="CreateMessage">Yeni mesaj yaz</a></div> }
+    </section>
+    <section class="v-panel v-detail" aria-label="Mesaj detayı">
+    @if (Model.SelectedMessage is Message mail)
+    {
+        var senderName = VeloraDisplay.Name(Model.People.GetValueOrDefault(mail.SenderEmail), mail.SenderEmail);
+        var recipientName = VeloraDisplay.Name(Model.People.GetValueOrDefault(mail.ReceiverEmail), mail.ReceiverEmail);
+        var state = Model.States.GetValueOrDefault(mail.MessageId);
+        var category = Model.Categories.FirstOrDefault(x => x.CategoryId == state?.CategoryId);
+        <div class="v-detail-tools"><a class="v-icon" href="@listUrl" aria-label="Mesaj listesine dön"><i class="bi bi-arrow-left" aria-hidden="true"></i></a><div class="v-actions">
+
+            @if (mail.ReceiverEmail == currentEmail) { <form method="post" asp-controller="Message" asp-action="SetRead"><input type="hidden" name="id" value="@mail.MessageId" /><input type="hidden" name="isRead" value="false" /><input type="hidden" name="returnUrl" value="@listUrl" /><button class="v-icon" type="submit" aria-label="Okunmadı olarak işaretle"><i class="bi bi-envelope" aria-hidden="true"></i></button></form> }
+        @if (Model.Folder == "Trash")
+        {
+            <form method="post" asp-controller="Message" asp-action="Restore"><input type="hidden" name="id" value="@mail.MessageId" /><button class="v-btn v-btn-secondary" type="submit"><i class="bi bi-arrow-counterclockwise"></i>Geri yükle</button></form>
+            <form method="post" asp-controller="Message" asp-action="PermanentlyDelete" data-confirm="Bu mesaj hesabınızdan kalıcı olarak kaldırılacak. Devam edilsin mi?"><input type="hidden" name="id" value="@mail.MessageId" /><button class="v-icon" type="submit" aria-label="Kalıcı sil"><i class="bi bi-trash3-fill" aria-hidden="true"></i></button></form>
+        }
+        else
+        {
+            <form method="post" asp-controller="Message" asp-action="Delete"><input type="hidden" name="id" value="@mail.MessageId" /><input type="hidden" name="returnUrl" value="@listUrl" /><button class="v-icon" type="submit" aria-label="Çöp kutusuna taşı"><i class="bi bi-trash3" aria-hidden="true"></i></button></form>
+            <form method="post" asp-controller="Message" asp-action="ToggleStar"><input type="hidden" name="id" value="@mail.MessageId" /><input type="hidden" name="returnUrl" value="@returnUrl" /><button class="v-icon @(state?.IsStarred == true ? "is-starred" : "")" type="submit" aria-label="Yıldızı değiştir" aria-pressed="@(state?.IsStarred == true ? "true" : "false")"><i class="bi @(state?.IsStarred == true ? "bi-star-fill" : "bi-star")" aria-hidden="true"></i></button></form>
+        }
+        </div></div>
+        <div class="v-detail-title"><h2>@mail.Subject</h2>@if (category != null) { <span class="v-badge"><i class="bi bi-tag"></i>@category.CategoryName</span> }</div>
+        <div class="v-sender"><span class="v-avatar">@VeloraDisplay.Initials(senderName)</span><div class="v-sender-copy"><strong>@senderName</strong> <span class="v-muted">&lt;@mail.SenderEmail&gt;</span><div>Alıcı: @recipientName (@mail.ReceiverEmail)</div></div><time datetime="@mail.SentDate.ToString("O")">@VeloraDisplay.Date(mail.SentDate)</time></div>
+        <p class="v-muted" data-read-label>@(mail.IsRead ? "Okundu" : "Okunmadı")</p>
+        <div class="v-message-content">@mail.MessageDetail</div>
+        @if (Model.Folder != "Trash")
+        {
+            <div class="v-detail-footer"><div class="v-actions"><a class="v-btn" asp-controller="Message" asp-action="CreateMessage" asp-route-replyTo="@mail.MessageId"><i class="bi bi-reply" aria-hidden="true"></i>Yanıtla</a><a class="v-btn v-btn-secondary" asp-controller="Message" asp-action="CreateMessage" asp-route-forwardId="@mail.MessageId"><i class="bi bi-send" aria-hidden="true"></i>İlet</a></div>
+            <form method="post" asp-controller="Message" asp-action="SetCategory" class="v-field"><input type="hidden" name="id" value="@mail.MessageId" /><input type="hidden" name="returnUrl" value="@returnUrl" /><label for="messageCategory">Kişisel etiketin</label><div class="v-actions"><select name="categoryId" id="messageCategory" class="form-select" style="flex:1;min-width:120px"><option value="">Etiketsiz</option>@foreach (var item in Model.Categories) { <option value="@item.CategoryId" selected="@(state?.CategoryId == item.CategoryId)">@item.CategoryName</option> }</select><button class="v-btn v-btn-secondary" type="submit">Uygula</button></div></form></div>
+        }
+        @if (!mail.IsRead && mail.ReceiverEmail == currentEmail) { <form method="post" asp-controller="Message" asp-action="SetRead" data-auto-read data-message-id="@mail.MessageId" hidden><input type="hidden" name="id" value="@mail.MessageId" /><input type="hidden" name="isRead" value="true" /></form> }
+    }
+    else
+    { <div class="v-empty v-detail-empty"><div class="v-empty-symbol"><i class="bi bi-envelope-open" aria-hidden="true"></i></div><h2>Her mesajın bir yeri var.</h2><p>Okumak için listeden bir mesaj seç.<br />Dikkatin yalnızca önemli olanlarda kalsın.</p></div> }
+    </section>
+</div>

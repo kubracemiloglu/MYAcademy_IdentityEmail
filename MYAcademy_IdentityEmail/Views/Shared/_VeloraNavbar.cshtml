@@ -1,0 +1,22 @@
+@using Microsoft.AspNetCore.Identity
+@using MYAcademy_IdentityEmail.Helpers
+@inject UserManager<AppUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User); var name = VeloraDisplay.Name(user);
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var searchAction = ViewContext.RouteData.Values["controller"]?.ToString() == "Message" && action is "Inbox" or "Sendbox" or "Starred" or "Trash" or "Category" ? action : "Inbox";
+}
+<header class="v-topbar">
+    <button class="v-icon v-menu-toggle" type="button" data-velora-menu aria-controls="veloraSidebar" aria-expanded="false" aria-label="Menüyü aç"><i class="bi bi-list" aria-hidden="true"></i></button>
+    <form class="v-search" method="get" asp-controller="Message" asp-action="@searchAction" asp-route-id="" role="search">
+        @if (searchAction == "Category") { <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" /> }
+        <i class="bi bi-search" aria-hidden="true"></i><input name="q" value="@Context.Request.Query["q"]" type="search" placeholder="Mesajlarda ara (gönderen, konu veya içerik)…" aria-label="Mesajlarda ara" data-velora-search /><kbd>Ctrl + K</kbd>
+    </form>
+    <div class="v-topbar-tools">
+        <button class="v-icon" type="button" data-velora-theme-toggle aria-label="Temayı değiştir"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
+        <details class="v-profile"><summary aria-label="Profil menüsü">
+            <span class="v-avatar v-avatar-round">@if (user?.ImageUrl?.StartsWith("/uploads/avatars/", StringComparison.Ordinal) == true) { <img src="@user.ImageUrl" alt="@name profil fotoğrafı" /> } else { @VeloraDisplay.Initials(name) }</span>
+            <span class="v-profile-summary-copy"><strong>@name</strong><small>@user?.Email</small></span><i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </summary><div class="v-dropdown"><a asp-controller="Profile" asp-action="Index"><i class="bi bi-person"></i> Profilim</a><a asp-controller="Profile" asp-action="ChangePassword"><i class="bi bi-shield-lock"></i> Şifremi değiştir</a><form method="post" asp-controller="Login" asp-action="SignOutAccount"><button type="submit"><i class="bi bi-box-arrow-right"></i> Çıkış yap</button></form></div></details>
+    </div>
+</header>

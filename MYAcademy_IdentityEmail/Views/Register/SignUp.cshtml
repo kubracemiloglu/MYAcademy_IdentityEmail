@@ -1,38 +1,44 @@
 ﻿@model UserRegisterViewModel
 
 @{
-    Layout = null;
+    Layout = "_VeloraPublicLayout";
+    ViewData["Title"] = "Hesap Oluştur";
 }
 
-<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+<span class="v-badge">Yeni bir başlangıç</span>
+<h1>Daha net bir iletişim.</h1>
+<p class="v-muted">VELORA Mail hesabını oluştur, bağlantılarına alan aç.</p>
 
 <div class="container">
     <br /><br />
     <form method="post">
-        <label>Adınız</label>
+        <div asp-validation-summary="All" class="v-validation" role="alert"></div>
+        <label asp-for="Name">Adınız</label>
         <input type="text" asp-for="Name" class="form-control" />
         <br />
 
-        <label>Soyadınız</label>
+        <label asp-for="Surname">Soyadınız</label>
         <input type="text" asp-for="Surname" class="form-control" />
         <br />
 
-        <label>Kullanıcı Adınız</label>
+        <label asp-for="UserName">Kullanıcı Adınız</label>
         <input type="text" asp-for="UserName" class="form-control" />
         <br />
 
-        <label>Email Adresiniz</label>
+        <label asp-for="Email">Email Adresiniz</label>
         <input type="email" asp-for="Email" class="form-control" />
         <br />
 
-        <label>Şifreniz</label>
+        <label asp-for="Password">Şifreniz</label>
         <input type="password" asp-for="Password" class="form-control" />
         <br />
 
-        <label>Şifre Tekrar</label>
+        <label asp-for="ConfirmPassword">Şifre Tekrar</label>
         <input type="password" asp-for="ConfirmPassword" class="form-control" />
         <br />
 
-        <button type="submit" class="btn btn-info">Kullanıcıyı Oluştur</button>
+        <p class="v-field-help">Şifren en az 6 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermeli.</p>
+        <button type="submit" class="v-btn">Hesap oluştur <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
     </form>
 </div>
+<div class="v-auth-bottom">Zaten hesabın var mı? <a asp-controller="Login" asp-action="SignIn">Giriş yap</a></div>

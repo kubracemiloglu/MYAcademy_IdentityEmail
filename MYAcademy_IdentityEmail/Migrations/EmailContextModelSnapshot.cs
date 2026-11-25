@@ -121,6 +121,61 @@ namespace MYAcademy_IdentityEmail.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.DraftMessage", b =>
+                {
+                    b.Property<string>("DraftMessageId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MessageDetail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceiverEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("DraftMessageId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DraftMessages");
+                });
+
+            modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.EmailVerificationState", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastSentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("EmailVerificationStates");
+                });
+
             modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.Message", b =>
                 {
                     b.Property<string>("MessageId")
@@ -156,6 +211,46 @@ namespace MYAcademy_IdentityEmail.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.MessageUserState", b =>
+                {
+                    b.Property<int>("MessageUserStateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageUserStateId"));
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPermanentlyDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsStarred")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MessageId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("MessageUserStateId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("MessageId");
+
+                    b.HasIndex("UserId", "MessageId")
+                        .IsUnique();
+
+                    b.ToTable("MessageUserStates");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -291,6 +386,35 @@ namespace MYAcademy_IdentityEmail.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.DraftMessage", b =>
+                {
+                    b.HasOne("MYAcademy_IdentityEmail.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MYAcademy_IdentityEmail.Entities.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.EmailVerificationState", b =>
+                {
+                    b.HasOne("MYAcademy_IdentityEmail.Entities.AppUser", "User")
+                        .WithOne()
+                        .HasForeignKey("MYAcademy_IdentityEmail.Entities.EmailVerificationState", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.Message", b =>
                 {
                     b.HasOne("MYAcademy_IdentityEmail.Entities.Category", "Category")
@@ -300,6 +424,32 @@ namespace MYAcademy_IdentityEmail.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("MYAcademy_IdentityEmail.Entities.MessageUserState", b =>
+                {
+                    b.HasOne("MYAcademy_IdentityEmail.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MYAcademy_IdentityEmail.Entities.Message", "Message")
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MYAcademy_IdentityEmail.Entities.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Message");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

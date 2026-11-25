@@ -1,0 +1,21 @@
+@model DashboardViewModel
+@using MYAcademy_IdentityEmail.Helpers
+@using System.Text.Json
+@{ Layout = "_VeloraLayout"; ViewData["Title"] = "Dashboard"; }
+<section class="v-panel v-content-panel">
+    <div class="v-page-title"><div><span class="v-badge">İletişimin, bir bakışta</span><h1 style="margin-top:14px">Merhaba, @Model.Counts.User?.Name.</h1><p>Bugün önemli olana odaklan. Mesajlarının özeti burada.</p></div><a class="v-btn" asp-controller="Message" asp-action="CreateMessage"><i class="bi bi-pencil-square"></i>Yeni mesaj</a></div>
+    <div class="v-bento">
+        <a class="v-stat" asp-controller="Message" asp-action="Inbox"><span class="v-stat-label">Gelen mesajlar<i class="bi bi-inbox"></i></span><strong class="v-stat-number">@Model.Counts.Inbox</strong></a>
+        <a class="v-stat" asp-controller="Message" asp-action="Inbox" asp-route-filter="unread"><span class="v-stat-label">Okunmamış<i class="bi bi-envelope"></i></span><strong class="v-stat-number">@Model.Counts.Unread</strong></a>
+        <a class="v-stat" asp-controller="Message" asp-action="Sendbox"><span class="v-stat-label">Gönderilenler<i class="bi bi-send"></i></span><strong class="v-stat-number">@Model.Counts.Sent</strong></a>
+        <a class="v-stat" asp-controller="Message" asp-action="Starred"><span class="v-stat-label">Yıldızlılar<i class="bi bi-star"></i></span><strong class="v-stat-number">@Model.Counts.Starred</strong></a>
+        <a class="v-stat" asp-controller="Draft" asp-action="Index"><span class="v-stat-label">Taslaklar<i class="bi bi-file-earmark-text"></i></span><strong class="v-stat-number">@Model.Counts.Drafts</strong></a>
+        <a class="v-stat" asp-controller="Message" asp-action="Trash"><span class="v-stat-label">Çöp kutusu<i class="bi bi-trash3"></i></span><strong class="v-stat-number">@Model.Counts.Trash</strong></a>
+    </div>
+    <section class="v-chart-panel"><h2>İletişimin ritmi</h2><p class="v-muted">Son 7 gündeki gelen ve gönderilen mesajların. Silinen mesajlar dahil edilmez.</p><div class="v-chart"><canvas id="veloraTraffic" role="img" aria-label="Son 7 günlük mesaj trafiği"></canvas></div>
+    <details style="margin-top:16px"><summary>Grafik verilerini tablo olarak görüntüle</summary><div style="overflow:auto"><table class="table" style="color:var(--v-text);--bs-table-bg:transparent;--bs-table-color:var(--v-text);--bs-table-border-color:var(--v-line)"><thead><tr><th>Gün</th><th>Gelen</th><th>Gönderilen</th></tr></thead><tbody>@for (var i = 0; i < Model.Labels.Count; i++) { <tr><td>@Model.Labels[i]</td><td>@Model.Received[i]</td><td>@Model.Sent[i]</td></tr> }</tbody></table></div></details></section>
+    <h2>Son mesajlar</h2><ul class="v-recent-list">@foreach (var message in Model.RecentMessages) { <li><a asp-controller="Message" asp-action="MessageDetail" asp-route-id="@message.MessageId"><strong>@message.Subject</strong><div class="v-muted">@message.SenderEmail</div></a><span class="v-muted">@VeloraDisplay.Date(message.SentDate)</span></li> }</ul>
+    @if (Model.RecentMessages.Count == 0) { <p class="v-muted">Henüz mesajın yok. Yeni bağlantılar için ilk adımı sen at.</p> }
+</section>
+<script id="veloraTrafficData" type="application/json">@Html.Raw(JsonSerializer.Serialize(new { labels = Model.Labels, received = Model.Received, sent = Model.Sent }))</script>
+@section Scripts { <script src="~/lib/chart.js/chart.umd.min.js" asp-append-version="true"></script> }

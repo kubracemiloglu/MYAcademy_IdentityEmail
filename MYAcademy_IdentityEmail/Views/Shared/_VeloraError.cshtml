@@ -1,0 +1,7 @@
+@model int
+@{
+    var heading = Model switch { 401 => "Önce seni tanıyalım.", 403 => "Bu alan sana açık değil.", 500 => "Kısa bir mola verelim.", _ => "Bu sayfa başka bir yerde." };
+    var description = Model switch { 401 => "Bu sayfayı görüntülemek için hesabına giriş yapman gerekiyor.", 403 => "Bu işlem veya içerik için erişim iznin bulunmuyor. Kendi mesajlarına güvenle dönebilirsin.", 500 => "İsteğin işlenirken bir sorun oluştu. Biraz sonra tekrar deneyebilir veya gelen kutuna dönebilirsin.", _ => "Aradığın adres taşınmış, silinmiş ya da hiç var olmamış olabilir. Doğru bir yerden yeniden başlayalım." };
+    ViewData["Title"] = Model + " · " + heading;
+}
+<div class="v-error-code" aria-hidden="true">@Model</div><span class="v-badge">Hata @Model</span><h1>@heading</h1><p class="v-muted">@description</p><div class="v-actions v-error-actions">@if (User.Identity?.IsAuthenticated == true) { <a class="v-btn" asp-controller="Message" asp-action="Inbox"><i class="bi bi-arrow-left"></i>Gelen kutusuna dön</a><a class="v-btn v-btn-secondary" asp-controller="Dashboard" asp-action="Index">Dashboard</a> } else { <a class="v-btn" asp-controller="Login" asp-action="SignIn"><i class="bi bi-arrow-right"></i>Giriş yap</a> }</div>

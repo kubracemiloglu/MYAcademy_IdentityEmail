@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="tr">
+<head><partial name="_VeloraHead" /></head>
+<body class="velora">
+<a class="v-skip" href="#mainContent">İçeriğe geç</a>
+<div class="v-public">
+    <aside class="v-public-brand" aria-label="VELORA Mail">
+        <partial name="_VeloraBrand" />
+        <div class="v-public-story"><span class="v-eyebrow">Daha az karmaşa. Daha çok odak.</span><h2>İletişime<br />biraz <em>alan aç.</em></h2><p>Mesajların, fikirlerin ve bağlantıların.<br />Hepsi bir arada, her şey yerli yerinde.</p></div>
+        <div class="v-public-foot">© @DateTime.Now.Year VELORA Mail · Communication Without Noise.</div>
+    </aside>
+    <main class="v-public-content" id="mainContent">
+        <div class="v-public-tools"><button class="v-icon" type="button" data-velora-theme-toggle aria-label="Temayı değiştir"><i class="bi bi-moon-stars" aria-hidden="true"></i></button></div>
+        <div class="v-auth-content"><partial name="_VeloraFlash" />@RenderBody()</div>
+    </main>
+</div>
+<script src="~/js/velora.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

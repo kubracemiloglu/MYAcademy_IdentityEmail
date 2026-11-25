@@ -1,0 +1,16 @@
+@model CreateMessageViewModel
+@{ Layout = "_VeloraLayout"; ViewData["Title"] = Model.DraftMessageId == null ? "Yeni Mesaj" : "Taslağı Düzenle"; }
+<section class="v-panel v-content-panel"><div class="v-composer">
+    <div class="v-page-title"><div><span class="v-badge">İletişime alan aç</span><h1 style="margin-top:14px">@ViewData["Title"]</h1><p>Doğru kişiye, doğrudan. Mesajın VELORA içinde iletilir.</p></div><a class="v-icon" asp-controller="Message" asp-action="Inbox" aria-label="Gelen kutusuna dön"><i class="bi bi-x-lg"></i></a></div>
+    <form method="post" asp-controller="Message" asp-action="CreateMessage">
+        @if (ViewData["SourceSender"] is string sourceSender) { <p class="v-muted">Önceki mesaj: @sourceSender · @ViewData["SourceSubject"]</p> }
+        <div asp-validation-summary="All" class="v-validation" role="alert"></div><input asp-for="DraftMessageId" type="hidden" />
+        <div class="v-form-grid">
+            <div class="v-field"><label asp-for="ReceiverEmail">Alıcı e-posta adresi</label><input asp-for="ReceiverEmail" class="form-control" type="email" autocomplete="email" placeholder="Kayıtlı bir kullanıcının adresi" /><span asp-validation-for="ReceiverEmail"></span></div>
+            <div class="v-field"><label asp-for="CategoryId">Kişisel etiketin</label><select asp-for="CategoryId" class="form-select"><option value="">Etiketsiz</option>@foreach (var category in Model.Categories) { <option value="@category.CategoryId">@category.CategoryName</option> }</select><small class="v-field-help">Bu etiket yalnızca senin hesabında görünür.</small></div>
+            <div class="v-field v-full"><label asp-for="Subject">Konu</label><input asp-for="Subject" class="form-control" maxlength="200" placeholder="Mesajın ne hakkında?" /><span asp-validation-for="Subject"></span></div>
+            <div class="v-field v-full"><label asp-for="MessageDetail">Mesajın</label><textarea asp-for="MessageDetail" class="form-control" maxlength="20000" rows="12" placeholder="Söylemek istediklerin için burası…"></textarea><span asp-validation-for="MessageDetail"></span></div>
+        </div>
+        <div class="v-form-footer"><button type="submit" class="v-btn"><i class="bi bi-send"></i>Mesajı gönder</button><button type="submit" class="v-btn v-btn-secondary" formaction="@Url.Action("Save", "Draft")" formnovalidate><i class="bi bi-file-earmark-text"></i>Taslak kaydet</button></div>
+    </form>
+</div></section>

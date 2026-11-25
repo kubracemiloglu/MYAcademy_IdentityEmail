@@ -1,7 +1,14 @@
 ﻿@{
-    Layout = null;
+    Layout = ViewData["VeloraError"] is true ? "_VeloraPublicLayout" : null;
+    if (ViewData["VeloraError"] is true) ViewData["Title"] = "404 · Sayfa Bulunamadı";
 }
 
+@if (ViewData["VeloraError"] is true)
+{
+    @await Html.PartialAsync("_VeloraError", 404)
+}
+else
+{
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -356,3 +363,4 @@
     </script>
 </body>
 </html>
+}

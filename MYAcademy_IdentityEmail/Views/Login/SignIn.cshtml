@@ -1,22 +1,29 @@
 ﻿@model UserLoginViewModel
 
 @{
-    Layout = null;
+    Layout = "_VeloraPublicLayout";
+    ViewData["Title"] = "Giriş Yap";
 }
 
-<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+<span class="v-badge">Tekrar hoş geldin</span>
+<h1>Kaldığın yerden devam et.</h1>
+<p class="v-muted">Mesajlarına ve bağlantılarına giriş yap.</p>
 <form method="post">
+<div asp-validation-summary="All" class="v-validation" role="alert"></div>
 <div class="container">
     <br /><br />
 
-    <label>Kullanıcı Adı</label>
-    <input type="text" asp-for="UserName" class="form-control" />
+    <label asp-for="UserName">Kullanıcı Adı</label>
+    <input type="text" asp-for="UserName" class="form-control" autocomplete="username" />
     <br />
 
-    <label>Şifre</label>
-    <input type="password" asp-for="Password" class="form-control" />
+    <label asp-for="Password">Şifre</label>
+    <input type="password" asp-for="Password" class="form-control" autocomplete="current-password" />
     <br />
 
-    <button class="btn btn-info">Giriş Yap</button>
+    <div class="v-auth-links"><label><input asp-for="RememberMe" class="v-checkbox" />Beni hatırla</label><a asp-controller="Account" asp-action="ForgotPassword">Şifremi unuttum</a></div>
+    <button class="v-btn" type="submit">Giriş Yap <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
 </div>
 </form>
+<div class="v-auth-bottom">Henüz hesabın yok mu? <a asp-controller="Register" asp-action="SignUp">Hesap oluştur</a></div>
+<div class="v-auth-links"><a asp-controller="Account" asp-action="ResendVerification">E-posta doğrulama kodunu yeniden iste</a></div>

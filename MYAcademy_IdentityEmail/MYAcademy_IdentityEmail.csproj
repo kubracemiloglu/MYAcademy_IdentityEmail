@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Uploaded user photos are runtime data, not source or publish assets. -->
+    <Content Remove="wwwroot\uploads\**" />
+    <Content Remove="appsettings.Local.json;appsettings.*.Local.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MailKit" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.13" />
+    <PackageReference Include="StbImageSharp" Version="2.30.16" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.23">

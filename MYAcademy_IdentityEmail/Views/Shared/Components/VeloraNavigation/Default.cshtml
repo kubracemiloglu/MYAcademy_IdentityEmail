@@ -1,0 +1,29 @@
+@model MailNavigationViewModel
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentFolder = Context.Request.Query["folder"].ToString();
+    string Active(string targetController, string targetAction) => controller == targetController && (action == targetAction || currentFolder == targetAction) ? "is-active" : "";
+}
+<aside class="v-sidebar" id="veloraSidebar" aria-label="Ana navigasyon">
+    <partial name="_VeloraBrand" />
+    <a class="v-btn v-compose" asp-controller="Message" asp-route-id="" asp-action="CreateMessage"><i class="bi bi-pencil-square" aria-hidden="true"></i>Yeni Mesaj</a>
+    <nav><ul class="v-nav">
+        <li><a class="@Active("Dashboard", "Index")" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-house-door" aria-hidden="true"></i>Dashboard</a></li>
+        <li><a class="@Active("Message", "Inbox")" asp-controller="Message" asp-route-id="" asp-action="Inbox"><i class="bi bi-envelope" aria-hidden="true"></i>Gelen Kutusu <span class="v-count" data-velora-unread>@Model.Unread</span></a></li>
+        <li><a class="@Active("Message", "Sendbox")" asp-controller="Message" asp-route-id="" asp-action="Sendbox"><i class="bi bi-send" aria-hidden="true"></i>Gönderilenler<span class="v-count">@Model.Sent</span></a></li>
+        <li><a class="@Active("Draft", "Index")" asp-controller="Draft" asp-action="Index"><i class="bi bi-file-earmark-text" aria-hidden="true"></i>Taslaklar<span class="v-count">@Model.Drafts</span></a></li>
+        <li><a class="@Active("Message", "Starred")" asp-controller="Message" asp-route-id="" asp-action="Starred"><i class="bi bi-star" aria-hidden="true"></i>Yıldızlılar<span class="v-count">@Model.Starred</span></a></li>
+        <li><a class="@Active("Message", "Trash")" asp-controller="Message" asp-route-id="" asp-action="Trash"><i class="bi bi-trash3" aria-hidden="true"></i>Çöp Kutusu<span class="v-count">@Model.Trash</span></a></li>
+    </ul>
+    <div class="v-nav-heading">Kategoriler<i class="bi bi-chevron-up" aria-hidden="true"></i></div>
+    <ul class="v-nav">
+        @foreach (var category in Model.Categories)
+        {
+            var icon = category.CategoryName switch { "İş" => "briefcase", "Kişisel" => "person", "Önemli" => "bookmark", "Eğitim" => "mortarboard", "Finans" => "coin", _ => "tag" };
+            var active = action == "Category" && Context.Request.Query["categoryId"] == category.CategoryId.ToString();
+            <li><a class="@(active ? "is-active" : "")" asp-controller="Message" asp-route-id="" asp-action="Category" asp-route-categoryId="@category.CategoryId"><i class="bi bi-@icon" aria-hidden="true"></i>@category.CategoryName<span class="v-count">@Model.CategoryCounts.GetValueOrDefault(category.CategoryId)</span></a></li>
+        }
+    </ul></nav>
+    <div class="v-sidebar-foot">Daha sakin bir iletişim alanı.<br />© @DateTime.Now.Year VELORA Mail</div>
+</aside>

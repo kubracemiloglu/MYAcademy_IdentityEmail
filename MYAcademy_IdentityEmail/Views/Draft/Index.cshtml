@@ -1,0 +1,7 @@
+@model List<DraftMessage>
+@using MYAcademy_IdentityEmail.Helpers
+@{ Layout = "_VeloraLayout"; ViewData["Title"] = "Taslaklar"; }
+<section class="v-panel v-content-panel"><div class="v-page-title"><div><h1>Taslaklar <span class="v-badge">@Model.Count</span></h1><p>Biraz düşün, sonra gönder. Bıraktığın yerden devam et.</p></div><a class="v-btn" asp-controller="Message" asp-action="CreateMessage"><i class="bi bi-plus-lg"></i>Yeni mesaj</a></div>
+@if (Model.Count == 0) { <div class="v-empty"><i class="bi bi-file-earmark-text"></i><h2>Fikirlerine yer var.</h2><p>Kaydettiğin taslaklar burada görünür.</p></div> }
+<ul class="v-draft-list">@foreach (var draft in Model) { <li><a asp-action="Edit" asp-route-id="@draft.DraftMessageId"><span class="v-badge">Taslak</span><strong>@(string.IsNullOrWhiteSpace(draft.Subject) ? "Konusuz taslak" : draft.Subject)</strong><p>@draft.ReceiverEmail</p><span class="v-muted">@VeloraDisplay.Date(draft.UpdatedAt)</span></a><form method="post" asp-action="Delete" data-confirm="Bu taslak silinsin mi?"><input type="hidden" name="id" value="@draft.DraftMessageId" /><button class="v-icon" type="submit" aria-label="Taslağı sil"><i class="bi bi-trash3"></i></button></form></li> }</ul>
+</section>

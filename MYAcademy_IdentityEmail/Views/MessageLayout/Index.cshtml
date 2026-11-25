@@ -1,7 +1,9 @@
 ﻿@{
-    Layout = null;
+    Layout = ViewData["UseCourseLayout"] is true ? null : "_VeloraLayout";
 }
 
+@if (ViewData["UseCourseLayout"] is true)
+{
 <!DOCTYPE html>
 <html lang="tr">
 @await Component.InvokeAsync("_MessageLayoutStyleComponentPartial")
@@ -19,4 +21,9 @@
     @await Component.InvokeAsync("_MessageLayoutScriptComponentPartial")
 </body>
 </html>
+}
+else
+{
+    @RenderBody()
+}
 
